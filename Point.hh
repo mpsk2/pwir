@@ -42,7 +42,7 @@ public:
           const double& __mass,
           const int& __id
     ) noexcept : Point(__x, __y, __speed_x, __speed_y, 0, 0, __mass, __id) {}
-
+    Point() = default;
 
     const std::string str() const noexcept;
     const inline char* c_str() const noexcept ;

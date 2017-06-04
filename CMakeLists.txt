@@ -10,15 +10,34 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -O2")
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
-set(SOURCE_FILES main.cpp Point.cc Point.hh PMISerializable.cc PMISerializable.hh cli.cc cli.hh FileHeader.cc FileHeader.hh FileReader.cc FileReader.hh version.hh errors.cc errors.hh)
-add_executable(collisions ${SOURCE_FILES})
-target_link_libraries(collisions ${MPI_LIBRARIES})
+set(SOURCE_FILES main.cpp
+        Point.cc Point.hh
+        PMISerializable.cc PMISerializable.hh
+        cli.cc cli.hh
+        FileHeader.cc FileHeader.hh FileReader.cc FileReader.hh
+        version.hh errors.cc errors.hh
+        Sender.cc Sender.hh
+        bounds.cc bounds.hh
+        )
+add_executable(collisions-1 ${SOURCE_FILES})
+add_executable(collisions-2 ${SOURCE_FILES})
+add_executable(collisions-3 ${SOURCE_FILES})
+target_link_libraries(collisions-1 ${MPI_LIBRARIES})
+target_link_libraries(collisions-2 ${MPI_LIBRARIES})
+target_link_libraries(collisions-3 ${MPI_LIBRARIES})
 
+target_compile_definitions(collisions-1 PUBLIC -DALG_V=1)
+target_compile_definitions(collisions-2 PUBLIC -DALG_V=2)
+target_compile_definitions(collisions-3 PUBLIC -DALG_V=3)
 
 if(MPI_COMPILE_FLAGS)
-    set_target_properties(collisions PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+    set_target_properties(collisions-1 PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+    set_target_properties(collisions-2 PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+    set_target_properties(collisions-3 PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
 endif()
 
 if(MPI_LINK_FLAGS)
-    set_target_properties(collisions PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+    set_target_properties(collisions-1 PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+    set_target_properties(collisions-2 PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+    set_target_properties(collisions-3 PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
 endif()

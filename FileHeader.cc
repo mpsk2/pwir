@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <sstream>
 #include "FileHeader.hh"
 
 FileHeader::FileHeader(const int& __number) : FileHeader(0, 0, 0, 0, __number) {}
@@ -16,12 +17,20 @@ const MPI_Aint FileHeader::offsets[] = {
         offsetof(FileHeader, stars_number),
         offsetof(FileHeader, speed_x),
         offsetof(FileHeader, speed_y),
+        offsetof(FileHeader, bound_up),
+        offsetof(FileHeader, bound_down),
+        offsetof(FileHeader, bound_left),
+        offsetof(FileHeader, bound_right),
         offsetof(FileHeader, mass)
 };
 
 const MPI_Datatype FileHeader::types[] = {
         MPI_INT,
         MPI_INT,
+        MPI_DOUBLE,
+        MPI_DOUBLE,
+        MPI_DOUBLE,
+        MPI_DOUBLE,
         MPI_DOUBLE,
         MPI_DOUBLE,
         MPI_DOUBLE
@@ -45,4 +54,30 @@ FileHeader& FileHeader::receive() {
     FileHeader* res = new FileHeader;
     MPI_Bcast(res, 1, mpi_type, 0, MPI_COMM_WORLD);
     return *res;
+}
+
+std::string FileHeader::str() {
+    std::stringstream ss;
+
+    ss << "GalHead ";
+    ss << this->number;
+    ss << " ";
+    ss << this->stars_number;
+    ss << " ";
+    ss << this->speed_x;
+    ss << " ";
+    ss << this->speed_y;
+    ss << " ";
+    ss << this->mass;
+    ss << " ";
+    ss << this->bound_left;
+    ss << " ";
+    ss << this->bound_right;
+    ss << " ";
+    ss << this->bound_down;
+    ss << " ";
+    ss << this->bound_up;
+    ss << "!";
+
+    return ss.str();
 }

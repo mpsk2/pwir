@@ -9,6 +9,8 @@
 #include "PMISerializable.hh"
 #include "cli.hh"
 #include "errors.hh"
+#include "Sender.hh"
+#include "bounds.hh"
 
 int main(int argc, char** argv) {
     auto arguments = Arguments::from_cli(argc, argv);
@@ -59,12 +61,19 @@ int main(int argc, char** argv) {
         fr1 = new FileReader(arguments.galaxy_1_file, 1);
         fr2 = new FileReader(arguments.galaxy_2_file, 2);
 
-        fr1->broadcast();
-        fr2->broadcast();
-
         points = dynamic_cast<FileReader*>(fr1)->read_file();
         std::vector<Point> coords2 = dynamic_cast<FileReader*>(fr2)->read_file();
         points.insert(points.end(), coords2.begin(), coords2.end());
+
+        auto space = simulation_space(points);
+
+        fr1->bound_left = fr2->bound_left = std::get<0>(space);
+        fr1->bound_right = fr2->bound_right = std::get<1>(space);
+        fr1->bound_down = fr2->bound_down = std::get<2>(space);
+        fr1->bound_up = fr2->bound_up = std::get<3>(space);
+
+        fr1->broadcast();
+        fr2->broadcast();
     } else {
         fr1 = &FileHeader::receive();
         fr2 = &FileHeader::receive();
@@ -72,6 +81,9 @@ int main(int argc, char** argv) {
             std::swap(fr1, fr2);
         }
     }
+
+    Sender sender(process_number, fr1->stars_number, fr2->stars_number);
+    std::vector<Point> data = sender.sent_initial(points);
 
     MPI_Finalize();
     return 0;
