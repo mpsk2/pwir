@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 
     std::cout << fr1->str() << std::endl;
 
-    Sender sender(process_number, processes_count, fr1->stars_number, fr2->stars_number);
+    Sender sender(process_number, processes_count, fr1->stars_number, fr2->stars_number, arguments.verbose);
 
     Point::fill_accelerations(points);
 

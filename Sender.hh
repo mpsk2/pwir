@@ -10,13 +10,15 @@ private:
     const int processes_count;
     const int gal_1_stars;
     const int gal_2_stars;
+    const bool verbose;
 public:
-    Sender(const int& __process_number, const int& __processes_count, const int& __gal_1_stars, const int& __gal_2_stars) noexcept :
+    Sender(const int& __process_number, const int& __processes_count, const int& __gal_1_stars,
+           const int& __gal_2_stars, const bool& __verbose) noexcept :
             process_number(__process_number),
             processes_count(__processes_count),
             gal_1_stars(__gal_1_stars),
-            gal_2_stars(__gal_2_stars) {
-    }
+            gal_2_stars(__gal_2_stars),
+            verbose(__verbose) {}
 
     std::vector<Point> sent_initial(const std::vector<Point>& __data);
 

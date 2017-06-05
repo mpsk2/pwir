@@ -28,7 +28,7 @@ std::vector<Point> Sender::redistribute(std::vector<Point>& __data) {
     if (alg == AlgorithmVersion::ALL) {
         int m_err;
 
-        int my_size[] = { __data.size() };
+        int my_size[] = { static_cast<int>(__data.size()) };
         std::vector<int> sizes;
         sizes.resize(this->processes_count);
 
