@@ -4,25 +4,29 @@
 #include <string>
 #include <mpi.h>
 #include "PMISerializable.hh"
+#include "Point.hh"
+#include "bounds.hh"
 
 class FileHeader : public MPISerializable<9> {
 public:
     int stars_number;
     int number;
-    double speed_x;
-    double speed_y;
-    double mass;
-    double bound_up;
-    double bound_down;
-    double bound_left;
-    double bound_right;
+    Point::coord_t speed_x;
+    Point::coord_t speed_y;
+    Point::coord_t mass;
+    Point::coord_t bound_up;
+    Point::coord_t bound_down;
+    Point::coord_t bound_left;
+    Point::coord_t bound_right;
     FileHeader() = default;
     FileHeader(const int&);
-    FileHeader(const int&, const double&, const double&, const double&, const int&);
+    FileHeader(const int&, const Point::coord_t&, const Point::coord_t&, const Point::coord_t&, const int&);
 
     void broadcast();
     static FileHeader& receive();
     std::string str();
+
+    bounds_t borders() { return std::make_tuple(this->bound_left, this->bound_right, this->bound_down, this->bound_up); }
 
     const static MPI_Datatype types[];
     const static MPI_Aint offsets[];

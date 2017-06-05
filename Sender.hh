@@ -16,7 +16,9 @@ public:
             gal_2_stars(__gal_2_stars) {
     }
 
-    std::vector<Point> sent_initial(const std::vector<Point>&);
+    std::vector<Point> sent_initial(const std::vector<Point>& __data);
+
+    std::vector<Point> redistribute(std::vector<Point>& __data);
 };
 
 #endif //COLLISIONS_SENDER_HH

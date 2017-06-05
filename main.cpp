@@ -11,6 +11,8 @@
 #include "errors.hh"
 #include "Sender.hh"
 #include "bounds.hh"
+#include "Algorithm.hh"
+#include "Verbose.hh"
 
 int main(int argc, char** argv) {
     auto arguments = Arguments::from_cli(argc, argv);
@@ -82,8 +84,30 @@ int main(int argc, char** argv) {
         }
     }
 
+    std::cout << fr1->str() << std::endl;
+
     Sender sender(process_number, fr1->stars_number, fr2->stars_number);
+
+    Point::fill_accelerations(points);
+
     std::vector<Point> data = sender.sent_initial(points);
+
+    auto mb = my_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
+                        part_y, arguments.horizontal_cells, arguments.vertical_cells);
+
+    for (int i = 0; i < arguments.total / arguments.delta; i++) {
+        auto sub_data = my_chunk(data, mb);
+        sub_data = step_chunk(sub_data, data, arguments.delta);
+        sub_data = borders(sub_data, fr1->borders());
+        data = sender.redistribute(sub_data);
+        for (auto p : points) {
+            printf("p=%d, P=%s\n", process_number, p.str().c_str());
+        }
+        if (process_number == 0) {
+            write_file(data, fr1->stars_number, fr2->stars_number);
+        }
+
+    }
 
     MPI_Finalize();
     return 0;

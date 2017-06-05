@@ -5,26 +5,28 @@
 #include <ostream>
 #include <mpi.h>
 #include <stddef.h>
+#include <vector>
 #include "PMISerializable.hh"
 
 class Point : MPISerializable<8> {
 public:
-    double x;
-    double y;
-    double speed_x;
-    double speed_y;
-    double acceleration_x;
-    double acceleration_y;
-    double mass;
+    typedef float coord_t;
+    coord_t x;
+    coord_t y;
+    coord_t speed_x;
+    coord_t speed_y;
+    coord_t acceleration_x;
+    coord_t acceleration_y;
+    coord_t mass;
     int id;
 
-    Point(const double& __x,
-          const double& __y,
-          const double& __speed_x,
-          const double& __speed_y,
-          const double& __acceleration_x,
-          const double& __acceleration_y,
-          const double& __mass,
+    Point(const coord_t& __x,
+          const coord_t& __y,
+          const coord_t& __speed_x,
+          const coord_t& __speed_y,
+          const coord_t& __acceleration_x,
+          const coord_t& __acceleration_y,
+          const coord_t& __mass,
           const int& __id
     ) noexcept : x(__x),
         y(__y),
@@ -35,24 +37,27 @@ public:
         mass(__mass),
         id(__id) {}
 
-    Point(const double& __x,
-          const double& __y,
-          const double& __speed_x,
-          const double& __speed_y,
-          const double& __mass,
+    Point(const coord_t& __x,
+          const coord_t& __y,
+          const coord_t& __speed_x,
+          const coord_t& __speed_y,
+          const coord_t& __mass,
           const int& __id
     ) noexcept : Point(__x, __y, __speed_x, __speed_y, 0, 0, __mass, __id) {}
     Point() = default;
 
     const std::string str() const noexcept;
-    const inline char* c_str() const noexcept ;
     friend std::ostream& operator<< (std::ostream& stream, const Point& coord);
+
+    void fill_acceleration(std::vector<Point>& __data);
 
     const static MPI_Datatype types[];
     const static MPI_Aint offsets[];
     static MPI_Datatype mpi_type;
 
     static void create_type();
+
+    static void fill_accelerations(std::vector<Point>& __data);
 };
 
 #endif

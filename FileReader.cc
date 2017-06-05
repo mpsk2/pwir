@@ -8,9 +8,9 @@ void FileReader::read_header() {
 
 Point FileReader::next() {
     static int n=0;
-    double x, y;
+    Point::coord_t x, y;
     this->file_stream >> x >> y;
-    return Point(x, y, this->speed_x, this->speed_y, this->mass, n);
+    return Point(x, y, this->speed_x, this->speed_y, this->mass, n++);
 }
 
 std::vector<Point> FileReader::read_file() {

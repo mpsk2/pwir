@@ -18,6 +18,8 @@ set(SOURCE_FILES main.cpp
         version.hh errors.cc errors.hh
         Sender.cc Sender.hh
         bounds.cc bounds.hh
+        Algorithm.cc Algorithm.hh
+        Verbose.cc Verbose.hh
         )
 add_executable(collisions-1 ${SOURCE_FILES})
 add_executable(collisions-2 ${SOURCE_FILES})
