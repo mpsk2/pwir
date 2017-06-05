@@ -12,7 +12,7 @@ FileHeader::FileHeader(const int& __stars_number, const Point::coord_t& __speed_
         number(__number) {
 }
 
-const MPI_Aint FileHeader::offsets[] = {
+MPI_Aint FileHeader::offsets[] = {
         offsetof(FileHeader, number),
         offsetof(FileHeader, stars_number),
         offsetof(FileHeader, speed_x),
@@ -24,7 +24,7 @@ const MPI_Aint FileHeader::offsets[] = {
         offsetof(FileHeader, mass)
 };
 
-const MPI_Datatype FileHeader::types[] = {
+MPI_Datatype FileHeader::types[] = {
         MPI_INT,
         MPI_INT,
         MPI_FLOAT,

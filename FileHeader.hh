@@ -28,8 +28,8 @@ public:
 
     bounds_t borders() { return std::make_tuple(this->bound_left, this->bound_right, this->bound_down, this->bound_up); }
 
-    const static MPI_Datatype types[];
-    const static MPI_Aint offsets[];
+    static MPI_Datatype types[];
+    static MPI_Aint offsets[];
     static MPI_Datatype mpi_type;
 
     static void create_type();

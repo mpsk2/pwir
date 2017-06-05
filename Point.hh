@@ -51,8 +51,8 @@ public:
 
     void fill_acceleration(std::vector<Point>& __data);
 
-    const static MPI_Datatype types[];
-    const static MPI_Aint offsets[];
+    static MPI_Datatype types[];
+    static MPI_Aint offsets[];
     static MPI_Datatype mpi_type;
 
     static void create_type();

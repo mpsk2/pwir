@@ -38,7 +38,7 @@ void Point::fill_acceleration(std::vector<Point>& __data) {
     this->acceleration_y = acc.second;
 }
 
-constexpr MPI_Datatype Point::types[] = {
+MPI_Datatype Point::types[] = {
         MPI_FLOAT, // x
         MPI_FLOAT, // y
         MPI_FLOAT, // speed x
@@ -49,7 +49,7 @@ constexpr MPI_Datatype Point::types[] = {
         MPI_INT,    // id
 };
 
-const MPI_Aint Point::offsets[] = {
+MPI_Aint Point::offsets[] = {
         offsetof(Point, x),
         offsetof(Point, y),
         offsetof(Point, speed_x),
