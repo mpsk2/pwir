@@ -4,7 +4,8 @@
 
 FileHeader::FileHeader(const int& __number) : FileHeader(0, 0, 0, 0, __number) {}
 
-FileHeader::FileHeader(const int& __stars_number, const Point::coord_t& __speed_x, const Point::coord_t& __speed_y, const Point::coord_t& __mass, const int& __number) :
+FileHeader::FileHeader(const int& __stars_number, const Point::coord_t& __speed_x, const Point::coord_t& __speed_y,
+                       const Point::coord_t& __mass, const int& __number) :
         stars_number(__stars_number),
         speed_x(__speed_x),
         speed_y(__speed_y),

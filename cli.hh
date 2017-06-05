@@ -5,7 +5,7 @@
 
 class Arguments {
 public:
-    bool verbose;
+    bool verbose = false;
     int horizontal_cells;
     int vertical_cells;
     double delta;
