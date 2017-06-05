@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 
     std::cout << fr1->str() << std::endl;
 
-    Sender sender(process_number, fr1->stars_number, fr2->stars_number);
+    Sender sender(process_number, processes_count, fr1->stars_number, fr2->stars_number);
 
     Point::fill_accelerations(points);
 
@@ -100,13 +100,10 @@ int main(int argc, char** argv) {
         sub_data = step_chunk(sub_data, data, arguments.delta);
         sub_data = borders(sub_data, fr1->borders());
         data = sender.redistribute(sub_data);
-        for (auto p : points) {
-            printf("p=%d, P=%s\n", process_number, p.str().c_str());
-        }
+
         if (process_number == 0) {
             write_file(data, fr1->stars_number, fr2->stars_number);
         }
-
     }
 
     MPI_Finalize();
