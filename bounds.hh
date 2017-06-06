@@ -16,7 +16,7 @@ inline bool is_in_bounds(const bounds_t&, const Point::coord_t&, const Point::co
 
 std::vector<Point> my_chunk(const std::vector<Point>& __data, const bounds_t& __bounds);
 
-typedef std::vector<std::vector<std::vector<Point> > > chunks_t;
+typedef std::vector<std::vector<Point> > chunks_t;
 
 chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __ver);
 std::vector<bounds_t> area_bounds(const bounds_t& __bounds, const int& __x, const int& __y, const int& __max_x, const int& __max_y);

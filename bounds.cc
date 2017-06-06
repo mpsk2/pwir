@@ -2,7 +2,6 @@
 #include "errors.hh"
 
 bounds_t bounds(const std::vector<Point>& __coords) {
-    printf("\n\n\n%d\n\n", __coords.size());
     Point::coord_t minimum_x = __coords[0].x, minimum_y = __coords[0].y, maximum_x = __coords[0].x, maximum_y = __coords[0].y;
     for (auto coord : __coords) {
         minimum_x = std::min(minimum_x, coord.x);
@@ -108,18 +107,14 @@ std::vector<Point> my_chunk(const std::vector<Point>& __data, const bounds_t& __
 chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __ver) {
     chunks_t result;
 
-    result.resize(__hor);
-
-    for (int i = 0; i < __hor; i++) {
-        result[i].resize(__ver);
-    }
+    result.resize(__hor * __ver);
 
     auto space = simulation_space(__data);
 
     for (int i = 0; i < __hor; i++) {
         for (int j = 0; j < __ver; j++) {
             auto mb = my_bounds(space, i, j, __hor, __ver);
-            result[i][j] = my_chunk(__data, mb);
+            result[i + j * __hor] = my_chunk(__data, mb);
         }
     }
 

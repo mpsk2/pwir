@@ -90,17 +90,17 @@ int main(int argc, char** argv) {
     Point::fill_accelerations(points);
     std::vector<Point> data = sender.sent_initial(points);
 
+    PRINTF_FL("p=%d, data size=%d", process_number, data.size());
+
+    for (const auto &d : data) {
+        PRINTF_FL("p=%d, data=%f/%f", process_number, d.x, d.y);
+    }
+
     auto mb = my_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
                         part_y, arguments.horizontal_cells, arguments.vertical_cells);
 
     auto amb = area_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
                            part_y, arguments.horizontal_cells, arguments.vertical_cells);
-
-    PRINTF_FL("%d", amb.size());
-    for (auto a : amb) {
-        if (process_number == 0)
-            PRINTF_FL("X x=%f-%f y=%f-%f", std::get<0>(a), std::get<1>(a), std::get<2>(a), std::get<3>(a));
-    }
 
     /*
     for (int i = 0; i < arguments.total / arguments.delta; i++) {
