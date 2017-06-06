@@ -1,6 +1,6 @@
 #include <sstream>
 #include <iostream>
-#include "../../Algorithm.hh"
+#include "Algorithm.hh"
 #include "Point.hh"
 
 const std::string Point::str() const noexcept {

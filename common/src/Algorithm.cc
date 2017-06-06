@@ -3,7 +3,7 @@
 #include <iostream>
 #include "Algorithm.hh"
 #include "errors.hh"
-#include "bounds.hh"
+#include "../../bounds.hh"
 
 std::pair<Point::coord_t, Point::coord_t> calc_acceleration(const std::vector<Point>& __data, const Point::coord_t& x, const Point::coord_t& y) {
     Point::coord_t acceleration_x = 0;
@@ -25,14 +25,12 @@ std::pair<Point::coord_t, Point::coord_t> calc_acceleration(const std::vector<Po
         }
 
         tmp = std::pow(distance, 3);
-        acceleration_x -= distance_x * d.mass / tmp;
-        acceleration_y -= distance_y * d.mass / tmp;
+        acceleration_x -= d.mass / tmp;
+        acceleration_y -= d.mass / tmp;
     }
 
     acceleration_x *= Gc;
     acceleration_y *= Gc;
-    acceleration_x /= 1e9;
-    acceleration_y /= 1e9;
 
     return std::make_pair(acceleration_x, acceleration_y);
 };

@@ -125,7 +125,9 @@ std::vector<std::pair<int, int> > Sender::neighbours() {
 };
 
 std::vector<Point> Sender::sent_initial(const std::vector<Point>& input) {
-    {
+    if (alg == ALL) {
+        return this->sent_initial_all(input);
+    } else {
         // The strategy
         // Send from 0 to all what need to be sent
         // Send from all to their neighbours what is needed to be sent

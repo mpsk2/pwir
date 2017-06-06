@@ -95,7 +95,10 @@ int main(int argc, char** argv) {
     auto amb = area_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
                            part_y, arguments.horizontal_cells, arguments.vertical_cells);
 
-    /*
+    if ((process_number == 0) && arguments.verbose) {
+        write_file(data, fr1->stars_number, fr2->stars_number, false);
+    }
+
     for (int i = 0; i < arguments.total / arguments.delta; i++) {
         auto sub_data = my_chunk(data, mb);
         sub_data = step_chunk(sub_data, data, arguments.delta);
@@ -110,7 +113,7 @@ int main(int argc, char** argv) {
     if (process_number == 0) {
         write_file(data, fr1->stars_number, fr2->stars_number, true);
     }
-    */
+
 
     MPI_Finalize();
     return 0;

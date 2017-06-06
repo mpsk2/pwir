@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "Point.hh"
-#include "bounds.hh"
+#include "../../bounds.hh"
 
 constexpr Point::coord_t Gc = 155893.597f;
 constexpr Point::coord_t ignore_distance = 1e-20f;
