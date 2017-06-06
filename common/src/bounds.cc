@@ -36,17 +36,20 @@ bounds_t simulation_space(const bounds_t& __bounds) {
 }
 
 bounds_t my_bounds(const bounds_t& __bounds, const int& __x, const int& __y, const int& __max_x, const int& __max_y) {
-    Point::coord_t x = std::get<1>(__bounds) - std::get<0>(__bounds);
-    Point::coord_t y = std::get<3>(__bounds) - std::get<2>(__bounds);
+    const Point::coord_t min_x = std::get<0>(__bounds);
+    const Point::coord_t min_y = std::get<2>(__bounds);
+
+    Point::coord_t x = std::get<1>(__bounds) - min_x;
+    Point::coord_t y = std::get<3>(__bounds) - min_y;
 
     x /= __max_x;
     y /= __max_y;
 
     return std::make_tuple(
-            x * __x,
-            std::min(x * (__x + 1), std::get<1>(__bounds)),
-            y * __y,
-            std::min(y * (__y + 1), std::get<3>(__bounds))
+            x * __x + min_x,
+            std::min(x * (__x + 1) + min_x, std::get<1>(__bounds)),
+            y * __y + min_y,
+            std::min(y * (__y + 1) + min_y, std::get<3>(__bounds))
     );
 }
 

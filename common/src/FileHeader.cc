@@ -28,13 +28,13 @@ MPI_Aint FileHeader::offsets[] = {
 MPI_Datatype FileHeader::types[] = {
         MPI_INT,
         MPI_INT,
-        MPI_FLOAT,
-        MPI_FLOAT,
-        MPI_FLOAT,
-        MPI_FLOAT,
-        MPI_FLOAT,
-        MPI_FLOAT,
-        MPI_FLOAT
+        Point::mpi_coord_t,
+        Point::mpi_coord_t,
+        Point::mpi_coord_t,
+        Point::mpi_coord_t,
+        Point::mpi_coord_t,
+        Point::mpi_coord_t,
+        Point::mpi_coord_t
 };
 
 MPI_Datatype FileHeader::mpi_type;

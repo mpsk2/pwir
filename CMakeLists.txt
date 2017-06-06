@@ -12,14 +12,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH} common/src common/include)
 
-set(COMMON_SRC common/src/Algorithm.cc  common/src/errors.cc common/src/cli.cc common/src/FileHeader.cc common/src/FileReader.cc common/src/Point.cc common/src/PMISerializable.cc common/src/Verbose.cc )
-set(COMMON_INCLUDE common/include/Algorithm.hh common/include/errors.hh common/include/cli.hh common/include/FileHeader.hh common/include/FileReader.hh common/include/Point.hh common/include/PMISerializable.hh common/include/Verbose.hh)
+set(COMMON_SRC common/src/Algorithm.cc common/src/bounds.cc common/src/errors.cc common/src/cli.cc common/src/FileHeader.cc common/src/FileReader.cc common/src/Point.cc common/src/PMISerializable.cc common/src/Verbose.cc )
+set(COMMON_INCLUDE common/include/bounds.hh common/include/Algorithm.hh common/include/errors.hh common/include/cli.hh common/include/FileHeader.hh common/include/FileReader.hh common/include/Point.hh common/include/PMISerializable.hh common/include/Verbose.hh)
 add_library(COMMON ${COMMON_SRC} ${COMMON_INCLUDE})
 
 set(SOURCE_FILES main.cpp
         version.hh
         Sender.cc Sender.hh
-        bounds.cc bounds.hh
+
 
         )
 add_executable(collisions-1 ${SOURCE_FILES})

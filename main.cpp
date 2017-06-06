@@ -99,13 +99,19 @@ int main(int argc, char** argv) {
         write_file(data, fr1->stars_number, fr2->stars_number, false);
     }
 
+    // Point::fill_accelerations(data);
+
     for (int i = 0; i < arguments.total / arguments.delta; i++) {
         auto sub_data = my_chunk(data, mb);
+
         sub_data = step_chunk(sub_data, data, arguments.delta);
         sub_data = borders(sub_data, fr1->borders());
         data = sender.redistribute(sub_data);
 
         if ((process_number == 0) && arguments.verbose) {
+            for (const auto &d : data) {
+                PRINTF_FL("P=%s", d.str().c_str());
+            }
             write_file(data, fr1->stars_number, fr2->stars_number, false);
         }
     }

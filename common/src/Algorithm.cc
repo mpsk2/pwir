@@ -3,9 +3,10 @@
 #include <iostream>
 #include "Algorithm.hh"
 #include "errors.hh"
-#include "../../bounds.hh"
+#include "bounds.hh"
 
-std::pair<Point::coord_t, Point::coord_t> calc_acceleration(const std::vector<Point>& __data, const Point::coord_t& x, const Point::coord_t& y) {
+std::pair<Point::coord_t, Point::coord_t> calc_acceleration(const std::vector<Point>& __data, const Point::coord_t& x,
+                                                            const Point::coord_t& y, const Point::coord_t& __mass) {
     Point::coord_t acceleration_x = 0;
     Point::coord_t acceleration_y = 0;
     Point::coord_t distance_x;
@@ -14,7 +15,8 @@ std::pair<Point::coord_t, Point::coord_t> calc_acceleration(const std::vector<Po
     Point::coord_t tmp;
     Point::coord_t distance;
 
-    for (auto d : __data) {
+    for (const auto &d : __data) {
+        PRINTF_FL("CA - BEFORE LOOP %f %f %f %f", x, y, d.x, d.y);
         distance_x = x - d.x;
         distance_y = y - d.y;
 
@@ -25,12 +27,19 @@ std::pair<Point::coord_t, Point::coord_t> calc_acceleration(const std::vector<Po
         }
 
         tmp = std::pow(distance, 3);
-        acceleration_x -= d.mass / tmp;
-        acceleration_y -= d.mass / tmp;
+        acceleration_x -= distance_x * d.mass / tmp;
+        acceleration_y -= distance_y * d.mass / tmp;
+        PRINTF_FL("CA - LOOP dx=%f dy=%f ax=%f ay=%f d=%f tmp=%f", distance_x, distance_y, acceleration_x, acceleration_y, distance, tmp);
     }
 
     acceleration_x *= Gc;
     acceleration_y *= Gc;
+
+    if ( (acceleration_x * __mass >= 25) || (acceleration_y * __mass >= 25) ) {
+        return std::make_pair(-1, -1);
+    }
+
+    PRINTF_FL("AFTER CA ax=%f, ay=%f d=%f dx=%f dy=%f", acceleration_x, acceleration_y, distance, distance_x, distance_y);
 
     return std::make_pair(acceleration_x, acceleration_y);
 };
@@ -57,16 +66,14 @@ Point step_target(const std::vector<Point>& __data, const Point& __target, const
     );
 }
 
-Point change_speed(const std::vector<Point>& __data, Point& __target, const Point::coord_t& __time_diff) {
+Point change_speed(const std::vector<Point>& __data, Point& __target, const Point::coord_t& __time_diff, const Point::coord_t& __old_x, const Point::coord_t& __old_y) {
     Point::coord_t speed_x;
     Point::coord_t speed_y;
 
-    auto acceleration = calc_acceleration(__data, __target.x, __target.y);
+    auto acceleration = calc_acceleration(__data, __old_x, __old_y, __target.mass);
 
-    speed_x = __target.speed_x + (acceleration.first + __target.acceleration_x) * __time_diff / 2;
-    speed_y = __target.speed_y + (acceleration.second + __target.acceleration_y) * __time_diff / 2;
-
-    // printf("%f %f %f %f %f\n", speed_x, __target.speed_x, acceleration.first, __target.acceleration_x, __time_diff);
+    speed_x = __old_x + (acceleration.first + __target.acceleration_x) * __time_diff / 2;
+    speed_y = __old_y + (acceleration.second + __target.acceleration_y) * __time_diff / 2;
 
     return Point(
             __target.x,
@@ -88,7 +95,7 @@ std::vector<Point> step_chunk(const std::vector<Point>& __to_calculate, const st
     }
 
     for (int i = 0; i < result.size(); i++) {
-        result[i] = change_speed(__all, result[i], __time_diff);
+        result[i] = change_speed(__all, result[i], __time_diff, __to_calculate[i].x, __to_calculate[i].y);
     }
 
     return result;
@@ -115,8 +122,6 @@ Point remap(Point& __p, const bounds_t& __bounds) {
     while (std::get<3>(__bounds) < __p.y || std::get<2>(__bounds) > __p.y) {
         __p.y += diff_y;
     }
-
-    printf("remap %f %f %f %f\n", diff_x, diff_y, diff_x_p, diff_y_p);
     return __p;
 }
 

@@ -33,19 +33,19 @@ std::ostream& operator<< (std::ostream& stream, const Point& point) {
 }
 
 void Point::fill_acceleration(std::vector<Point>& __data) {
-    auto acc = calc_acceleration(__data, this->x, this->y);
+    auto acc = calc_acceleration(__data, this->x, this->y, this->mass);
     this->acceleration_x = acc.first;
     this->acceleration_y = acc.second;
 }
 
 MPI_Datatype Point::types[] = {
-        MPI_FLOAT, // x
-        MPI_FLOAT, // y
-        MPI_FLOAT, // speed x
-        MPI_FLOAT, // speed y
-        MPI_FLOAT, // acceleration x
-        MPI_FLOAT, // acceleration y
-        MPI_FLOAT, // mass
+        Point::mpi_coord_t, // x
+        Point::mpi_coord_t, // y
+        Point::mpi_coord_t, // speed x
+        Point::mpi_coord_t, // speed y
+        Point::mpi_coord_t, // acceleration x
+        Point::mpi_coord_t, // acceleration y
+        Point::mpi_coord_t, // mass
         MPI_INT,    // id
 };
 
@@ -65,4 +65,10 @@ MPI_Datatype Point::mpi_type;
 void Point::create_type() {
     MPI_Type_create_struct(Point::items_count, &Point::block_lengths().front(), Point::offsets, Point::types, &Point::mpi_type);
     MPI_Type_commit(&Point::mpi_type);
+}
+
+void Point::fill_accelerations(std::vector<Point>& __data) {
+    for (auto &p : __data) {
+        p.fill_acceleration(__data);
+    }
 }

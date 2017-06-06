@@ -179,6 +179,7 @@ std::vector<Point> Sender::sent_initial(const std::vector<Point>& input) {
 
 std::vector<Point> Sender::redistribute(std::vector<Point>& __data) {
     if (alg == AlgorithmVersion::ALL) {
+
         int m_err;
 
         int my_size[] = { static_cast<int>(__data.size()) };
