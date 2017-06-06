@@ -87,8 +87,8 @@ int main(int argc, char** argv) {
     Sender sender(process_number, processes_count, fr1->stars_number, fr2->stars_number, arguments.verbose,
                   arguments.horizontal_cells, arguments.vertical_cells);
 
+    Point::fill_accelerations(points);
     std::vector<Point> data = sender.sent_initial(points);
-
     auto mb = my_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
                         part_y, arguments.horizontal_cells, arguments.vertical_cells);
 
@@ -98,10 +98,7 @@ int main(int argc, char** argv) {
     if ((process_number == 0) && arguments.verbose) {
         write_file(data, fr1->stars_number, fr2->stars_number, false);
     }
-
-    // Point::fill_accelerations(data);
-
-    for (int i = 0; i < arguments.total / arguments.delta; i++) {
+    for (int i = 0; i < arguments.total / arguments.delta - 1; i++) {
         auto sub_data = my_chunk(data, mb);
 
         sub_data = step_chunk(sub_data, data, arguments.delta);
@@ -109,9 +106,6 @@ int main(int argc, char** argv) {
         data = sender.redistribute(sub_data);
 
         if ((process_number == 0) && arguments.verbose) {
-            for (const auto &d : data) {
-                PRINTF_FL("P=%s", d.str().c_str());
-            }
             write_file(data, fr1->stars_number, fr2->stars_number, false);
         }
     }

@@ -4,9 +4,11 @@
 #include <vector>
 #include "Point.hh"
 #include "bounds.hh"
+#include <limits>
 
 constexpr Point::coord_t Gc = 155893.597f;
 constexpr Point::coord_t ignore_distance = 1e-5f;
+constexpr Point::coord_t force_threshold = std::numeric_limits<Point::coord_t>::max() / 2.0;
 
 typedef std::pair<Point::coord_t, Point::coord_t> acceleration_t;
 
