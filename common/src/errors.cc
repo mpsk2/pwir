@@ -4,7 +4,7 @@
 #include "errors.hh"
 
 static void common_handle_error() {
-    MPI_Finalize();
+    MPI::COMM_WORLD.Abort(1);
     exit(1);
 }
 

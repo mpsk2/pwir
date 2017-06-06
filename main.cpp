@@ -13,6 +13,7 @@
 #include "bounds.hh"
 #include "Algorithm.hh"
 #include "Verbose.hh"
+#include "version.hh"
 
 int main(int argc, char** argv) {
     auto arguments = Arguments::from_cli(argc, argv);
@@ -34,9 +35,9 @@ int main(int argc, char** argv) {
     FileHeader *fr1;
     FileHeader *fr2;
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &process_number);
-    MPI_Comm_size(MPI_COMM_WORLD, &processes_count);
+    MPI::Init(argc, argv);
+    process_number = MPI::COMM_WORLD.Get_rank();
+    processes_count = MPI::COMM_WORLD.Get_size();
 
     if (processes_count < 2) {
         handle_error("Too few processes.");
@@ -105,8 +106,14 @@ int main(int argc, char** argv) {
         sub_data = borders(sub_data, fr1->borders());
         data = sender.redistribute(sub_data);
 
-        if ((process_number == 0) && arguments.verbose) {
-            write_file(data, fr1->stars_number, fr2->stars_number, false);
+        if (arguments.verbose) {
+            if (alg == ALL) {
+                if (process_number == 0) {
+                    write_file(data, fr1->stars_number, fr2->stars_number, false);
+                }
+            } else {
+                auto all_data = sender.gather_all_at_root(sub_data, fr1->stars_number + fr2->stars_number);
+            }
         }
     }
 
@@ -115,6 +122,6 @@ int main(int argc, char** argv) {
     }
 
 
-    MPI_Finalize();
+    MPI::Finalize();
     return 0;
 }

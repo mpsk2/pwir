@@ -4,7 +4,7 @@ project(collisions)
 set(CC mpicc)
 set(CXX mpicxx)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -Wno-invalid-offsetof -Wno-format")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -Wno-invalid-offsetof -Wno-format -DDEBUG")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -O2")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
