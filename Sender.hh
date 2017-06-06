@@ -36,6 +36,8 @@ public:
     std::vector<std::pair<int, int> > neighbours();
 
     std::vector<Point> redistribute(std::vector<Point>& __data);
+    std::vector<int> distribute_new_sizes(std::vector<int>& __sizes);
+
 };
 
 #endif //COLLISIONS_SENDER_HH

@@ -87,14 +87,7 @@ int main(int argc, char** argv) {
     Sender sender(process_number, processes_count, fr1->stars_number, fr2->stars_number, arguments.verbose,
                   arguments.horizontal_cells, arguments.vertical_cells);
 
-    Point::fill_accelerations(points);
     std::vector<Point> data = sender.sent_initial(points);
-
-    PRINTF_FL("p=%d, data size=%d", process_number, data.size());
-
-    for (const auto &d : data) {
-        PRINTF_FL("p=%d, data=%f/%f", process_number, d.x, d.y);
-    }
 
     auto mb = my_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
                         part_y, arguments.horizontal_cells, arguments.vertical_cells);

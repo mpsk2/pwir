@@ -217,3 +217,16 @@ std::vector<Point> Sender::redistribute(std::vector<Point>& __data) {
         handle_error("Not implemented yet.");
     }
 }
+
+std::vector<int> Sender::distribute_new_sizes(std::vector<int>& __sizes) {
+    std::vector<int> result;
+    result.resize(this->processes_count);
+
+    MPI_Alltoall((void*) &__sizes.front(), 1, MPI_INT, (void*) &result.front(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    for (const auto &s : result) {
+        PRINTF_FL("p=%d s=%d", this->process_number, s);
+    }
+
+    return result;
+}

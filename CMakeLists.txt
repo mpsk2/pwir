@@ -10,25 +10,24 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 
 find_package(MPI REQUIRED)
-include_directories(${MPI_INCLUDE_PATH})
+include_directories(${MPI_INCLUDE_PATH} common/src common/include)
+
+set(COMMON_SRC common/src/errors.cc common/src/cli.cc common/src/FileHeader.cc common/src/FileReader.cc common/src/Point.cc common/src/PMISerializable.cc common/src/Verbose.cc )
+set(COMMON_INCLUDE common/include/errors.hh common/include/cli.hh common/include/FileHeader.hh common/include/FileReader.hh common/include/Point.hh common/include/PMISerializable.hh common/include/Verbose.hh)
+add_library(COMMON ${COMMON_SRC} ${COMMON_INCLUDE})
 
 set(SOURCE_FILES main.cpp
-        Point.cc Point.hh
-        PMISerializable.cc PMISerializable.hh
-        cli.cc cli.hh
-        FileHeader.cc FileHeader.hh FileReader.cc FileReader.hh
-        version.hh errors.cc errors.hh
+        version.hh
         Sender.cc Sender.hh
         bounds.cc bounds.hh
         Algorithm.cc Algorithm.hh
-        Verbose.cc Verbose.hh
         )
 add_executable(collisions-1 ${SOURCE_FILES})
 add_executable(collisions-2 ${SOURCE_FILES})
 add_executable(collisions-3 ${SOURCE_FILES})
-target_link_libraries(collisions-1 ${MPI_LIBRARIES})
-target_link_libraries(collisions-2 ${MPI_LIBRARIES})
-target_link_libraries(collisions-3 ${MPI_LIBRARIES})
+target_link_libraries(collisions-1 ${MPI_LIBRARIES} COMMON)
+target_link_libraries(collisions-2 ${MPI_LIBRARIES} COMMON)
+target_link_libraries(collisions-3 ${MPI_LIBRARIES} COMMON)
 
 target_compile_definitions(collisions-1 PUBLIC -DALG_V=1)
 target_compile_definitions(collisions-2 PUBLIC -DALG_V=2)

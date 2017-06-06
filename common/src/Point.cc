@@ -1,6 +1,6 @@
 #include <sstream>
 #include <iostream>
-#include "Algorithm.hh"
+#include "../../Algorithm.hh"
 #include "Point.hh"
 
 const std::string Point::str() const noexcept {
@@ -65,10 +65,4 @@ MPI_Datatype Point::mpi_type;
 void Point::create_type() {
     MPI_Type_create_struct(Point::items_count, &Point::block_lengths().front(), Point::offsets, Point::types, &Point::mpi_type);
     MPI_Type_commit(&Point::mpi_type);
-}
-
-void Point::fill_accelerations(std::vector<Point>& __data) {
-    for (int i = 0; i < __data.size(); i++) {
-        __data[i].fill_acceleration(__data);
-    }
 }

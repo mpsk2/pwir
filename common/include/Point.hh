@@ -56,8 +56,6 @@ public:
     static MPI_Datatype mpi_type;
 
     static void create_type();
-
-    static void fill_accelerations(std::vector<Point>& __data);
 };
 
 #endif

@@ -1,3 +1,4 @@
+#include <cmath>
 #include "bounds.hh"
 #include "errors.hh"
 
@@ -119,4 +120,17 @@ chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __
     }
 
     return result;
+}
+
+std::pair<int, int> flat_cell(const Point::coord_t& __x, const Point::coord_t& __y, const bounds_t& __bounds, const int& __hor, const int& __ver) {
+    const Point::coord_t x = std::get<1>(__bounds) - std::get<0>(__bounds);
+    const Point::coord_t y = std::get<3>(__bounds) - std::get<2>(__bounds);
+
+    const Point::coord_t nx = __x - std::get<0>(__bounds);
+    const Point::coord_t ny = __y - std::get<2>(__bounds);
+
+    const Point::coord_t xc = std::floor(nx * __hor / x);
+    const Point::coord_t yc = std::floor(ny * __ver / y);
+
+    return std::make_pair(xc, yc);
 }
