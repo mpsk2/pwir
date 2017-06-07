@@ -10,8 +10,8 @@
 
 class Point : MPISerializable<8> {
 public:
-    typedef double coord_t;
-    constexpr static MPI_Datatype mpi_coord_t = MPI_DOUBLE;
+    typedef float coord_t;
+    constexpr static MPI_Datatype mpi_coord_t = MPI_FLOAT;
     coord_t x;
     coord_t y;
     coord_t speed_x;

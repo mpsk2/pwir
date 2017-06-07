@@ -21,6 +21,9 @@ private:
 
     const bounds_t bn;
     neighbours_t my_neighbours;
+
+    std::vector<int> self_disp;
+    std::vector<int> self_sizes;
 public:
     Sender(const int& __process_number, const int& __processes_count, const int& __gal_1_stars,
            const int& __gal_2_stars, const bool& __verbose, const int& __hor, const int& __ver, const bounds_t& __bn) noexcept;
@@ -36,6 +39,7 @@ public:
 
     std::vector<Point> redistribute_all(std::vector<Point>& __data);
     std::vector<Point> redistribute_chunks(const std::vector<Point>& __chunks);
+    std::vector<Point> redistribute_self(const std::vector<Point>& __chunks);
     std::vector<Point> redistribute(std::vector<Point>& __data);
 
     std::vector<Point> gather_all_at_root(std::vector<Point>& __data, const int& __sum);

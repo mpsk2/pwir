@@ -18,6 +18,24 @@ Sender::Sender(const int& __process_number, const int& __processes_count, const 
         hor(__hor),
         bn(__bn) {
     this->my_neighbours = this->neighbours();
+
+    if (alg == SELF) {
+        this->self_disp.resize(this->processes_count);
+        this->self_sizes.resize(this->processes_count);
+
+        const int stars = this->gal_1_stars + this->gal_2_stars;
+
+        const int additional = stars % this->processes_count;
+        const int base_each = stars / this->processes_count;
+
+        std::fill_n(this->self_sizes.begin(), additional, base_each + 1);
+        std::fill(this->self_sizes.begin() + additional, this->self_sizes.end(), base_each);
+
+        this->self_disp[0] = 0;
+        for (int i = 1; i < this->processes_count; i++) {
+            this->self_disp[i] = this->self_disp[i - 1] + this->self_disp[i - 1];
+        }
+    }
 }
 
 template <typename T>
@@ -214,10 +232,12 @@ std::vector<Point> Sender::sent_initial_neighbours(const std::vector<Point>& inp
 std::vector<Point> Sender::sent_initial(const std::vector<Point>& input) {
     std::vector<Point> result;
 
-    if (alg == ALL) {
+    if (alg == AlgorithmVersion::ALL) {
         result = this->sent_initial_all(input);
-    } else {
+    } else if (alg == AlgorithmVersion::NEIGHBOUR) {
         result = this->sent_initial_neighbours(input);
+    } else {
+        result = this->sent_initial_all(input);
     }
 
     return result;
@@ -267,7 +287,7 @@ std::vector<Point> Sender::redistribute(std::vector<Point>& __data) {
     } else if (alg == AlgorithmVersion::NEIGHBOUR) {
         result = this->redistribute_chunks(__data);
     } else {
-        handle_error("Not implemented yet.");
+        result = this->redistribute_self(__data);
     }
 
     return result;
@@ -384,6 +404,17 @@ std::vector<Point> Sender::gather_all_at_root(std::vector<Point>& __data, const 
             MPI::COMM_WORLD.Send((void *) &__data.front(), size, Point::mpi_type, 0, this->tag_gather_all);
         }
     }
+
+    return result;
+}
+
+std::vector<Point> Sender::redistribute_self(const std::vector<Point>& __chunks) {
+    std::vector<Point> result;
+    result.resize(this->gal_1_stars + this->gal_2_stars);
+
+    MPI::COMM_WORLD.Allgatherv(
+            (void*) &__chunks.front(), __chunks.size(), Point::mpi_type,
+            (void*) &result.front(), &this->self_sizes.front(), &this->self_disp.front(), Point::mpi_type);
 
     return result;
 }

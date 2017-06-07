@@ -17,7 +17,7 @@
 
 int main(int argc, char** argv) {
     auto arguments = Arguments::from_cli(argc, argv);
-    double start, start_calc, start_redistribute, start_verbose, finish;
+    double start, start_calc, start_redistribute, start_verbose, finish, total_start, total_end;
 
     // Check whenever input files exists
     if (access(arguments.galaxy_1_file, F_OK) == -1) {
@@ -39,6 +39,10 @@ int main(int argc, char** argv) {
     MPI::Init(argc, argv);
     process_number = MPI::COMM_WORLD.Get_rank();
     processes_count = MPI::COMM_WORLD.Get_size();
+
+    if (debug) {
+        total_start = MPI::Wtime();
+    }
 
     if (processes_count < 2) {
         handle_error("Too few processes.");
@@ -66,7 +70,17 @@ int main(int argc, char** argv) {
         fr2 = new FileReader(arguments.galaxy_2_file, 2);
 
         points = dynamic_cast<FileReader*>(fr1)->read_file();
-        std::vector<Point> coords2 = dynamic_cast<FileReader*>(fr2)->read_file();
+
+        if (debug) {
+            PRINTF_FL("Read file 1 finished!.", 1);
+        }
+
+        const auto coords2 = dynamic_cast<FileReader*>(fr2)->read_file();
+
+        if (debug) {
+            PRINTF_FL("Read file 2 finished!.", 1);
+        }
+
         points.insert(points.end(), coords2.begin(), coords2.end());
 
         auto space = simulation_space(points);
@@ -94,7 +108,9 @@ int main(int argc, char** argv) {
     Point::fill_accelerations(points);
     std::vector<Point> data = sender.sent_initial(points);
 
-    MPI::COMM_WORLD.Barrier();
+    if (debug) {
+        PRINTF_FL("[p=%3d,v=%1d] Send initial data finished.", process_number, alg);
+    }
 
     auto mb = my_bounds(space, part_x, part_y, arguments.horizontal_cells, arguments.vertical_cells);
 
@@ -102,12 +118,21 @@ int main(int argc, char** argv) {
         write_file(points, fr1->stars_number, fr2->stars_number, false);
     }
     std::vector<Point> sub_data;
+
+    if (alg == SELF) {
+        for (int i = process_number; i < fr1->stars_number + fr2->stars_number; i += processes_count) {
+            sub_data.push_back(data[i]);
+        }
+    }
+
     for (int i = 0; i < arguments.total / arguments.delta - 1; i++) {
         if (debug) {
             start = MPI::Wtime();
         }
 
-        sub_data = my_chunk(data, mb);
+        if (alg != SELF) {
+            sub_data = my_chunk(data, mb);
+        }
 
         if (debug) {
             start_calc = MPI::Wtime();
@@ -141,7 +166,7 @@ int main(int argc, char** argv) {
 
         if (debug) {
             finish = MPI::Wtime();
-            if(process_number==0)
+            if(process_number == 0)
                 PRINTF_FL("[p=%3d,it=%3d,v=%1d]Finished iteration in %f seconds."
                                   "\n\t\tcalc         time=%f seconds"
                                   "\n\t\tredistribute time=%f seconds"
@@ -163,6 +188,12 @@ int main(int argc, char** argv) {
         write_file(all_data, fr1->stars_number, fr2->stars_number, true);
     }
 
+    if (debug) {
+        total_end = MPI::Wtime();
+        if (process_number == 0) {
+            PRINTF_FL("Total time of computation: %f seconds.", total_end - total_start);
+        }
+    }
 
     MPI::Finalize();
     return 0;

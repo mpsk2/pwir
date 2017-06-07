@@ -4,7 +4,7 @@
 
 bounds_t bounds(const std::vector<Point>& __coords) {
     Point::coord_t minimum_x = __coords[0].x, minimum_y = __coords[0].y, maximum_x = __coords[0].x, maximum_y = __coords[0].y;
-    for (auto coord : __coords) {
+    for (const auto &coord : __coords) {
         minimum_x = std::min(minimum_x, coord.x);
         minimum_y = std::min(minimum_y, coord.x);
         maximum_x = std::max(maximum_x, coord.y);
@@ -72,7 +72,7 @@ inline bool is_in_bounds(const bounds_t& __bounds, const Point::coord_t& __x, co
 
 std::vector<Point> my_chunk(const std::vector<Point>& __data, const bounds_t& __bounds) {
     std::vector<Point> result;
-    for (auto p : __data) {
+    for (const auto &p : __data) {
         if (is_in_bounds(__bounds, p.x, p.y)) {
             result.push_back(p);
         }
