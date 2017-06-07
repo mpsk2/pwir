@@ -114,7 +114,6 @@ std::vector<Point> step_chunk(const std::vector<Point>& __to_calculate, const st
 }
 
 Point remap(Point& __p, const bounds_t& __bounds) {
-    PRINTF_FL("REMAP %d", 0);
     Point::coord_t diff_x = std::get<1>(__bounds) - std::get<0>(__bounds);
     Point::coord_t diff_y = std::get<3>(__bounds) - std::get<2>(__bounds);
 

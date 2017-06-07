@@ -17,6 +17,7 @@
 
 int main(int argc, char** argv) {
     auto arguments = Arguments::from_cli(argc, argv);
+    double start, start_calc, start_redistribute, start_verbose, finish;
 
     // Check whenever input files exists
     if (access(arguments.galaxy_1_file, F_OK) == -1) {
@@ -85,26 +86,45 @@ int main(int argc, char** argv) {
         }
     }
 
+    auto space = std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up);
+
     Sender sender(process_number, processes_count, fr1->stars_number, fr2->stars_number, arguments.verbose,
-                  arguments.horizontal_cells, arguments.vertical_cells);
+                  arguments.horizontal_cells, arguments.vertical_cells, space);
 
     Point::fill_accelerations(points);
     std::vector<Point> data = sender.sent_initial(points);
-    auto mb = my_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
-                        part_y, arguments.horizontal_cells, arguments.vertical_cells);
 
-    auto amb = area_bounds(std::make_tuple(fr1->bound_left, fr1->bound_right, fr1->bound_down, fr1->bound_up), part_x,
-                           part_y, arguments.horizontal_cells, arguments.vertical_cells);
+    MPI::COMM_WORLD.Barrier();
+
+    auto mb = my_bounds(space, part_x, part_y, arguments.horizontal_cells, arguments.vertical_cells);
 
     if ((process_number == 0) && arguments.verbose) {
-        write_file(data, fr1->stars_number, fr2->stars_number, false);
+        write_file(points, fr1->stars_number, fr2->stars_number, false);
     }
+    std::vector<Point> sub_data;
     for (int i = 0; i < arguments.total / arguments.delta - 1; i++) {
-        auto sub_data = my_chunk(data, mb);
+        if (debug) {
+            start = MPI::Wtime();
+        }
+
+        sub_data = my_chunk(data, mb);
+
+        if (debug) {
+            start_calc = MPI::Wtime();
+        }
 
         sub_data = step_chunk(sub_data, data, arguments.delta);
         sub_data = borders(sub_data, fr1->borders());
+
+        if (debug) {
+            start_redistribute = MPI::Wtime();
+        }
+
         data = sender.redistribute(sub_data);
+
+        if (debug) {
+            start_verbose = MPI::Wtime();
+        }
 
         if (arguments.verbose) {
             if (alg == ALL) {
@@ -113,12 +133,34 @@ int main(int argc, char** argv) {
                 }
             } else {
                 auto all_data = sender.gather_all_at_root(sub_data, fr1->stars_number + fr2->stars_number);
+                if (process_number == 0) {
+                    write_file(all_data, fr1->stars_number, fr2->stars_number, false);
+                }
             }
+        }
+
+        if (debug) {
+            finish = MPI::Wtime();
+            if(process_number==0)
+                PRINTF_FL("[p=%3d,it=%3d,v=%1d]Finished iteration in %f seconds."
+                                  "\n\t\tcalc         time=%f seconds"
+                                  "\n\t\tredistribute time=%f seconds"
+                                  "\n\t\tverbose      time=%f seconds",
+                          process_number, i, alg, finish - start, start_redistribute - start_calc, start_verbose - start_redistribute,
+                          finish - start_verbose
+                );
         }
     }
 
+    std::vector<Point> all_data;
+    if (alg == ALL) {
+        all_data = data;
+    } else {
+        all_data = sender.gather_all_at_root(sub_data, fr1->stars_number + fr2->stars_number);
+    }
+
     if (process_number == 0) {
-        write_file(data, fr1->stars_number, fr2->stars_number, true);
+        write_file(all_data, fr1->stars_number, fr2->stars_number, true);
     }
 
 

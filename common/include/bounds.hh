@@ -18,8 +18,7 @@ std::vector<Point> my_chunk(const std::vector<Point>& __data, const bounds_t& __
 
 typedef std::vector<std::vector<Point> > chunks_t;
 
-chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __ver);
-std::vector<bounds_t> area_bounds(const bounds_t& __bounds, const int& __x, const int& __y, const int& __max_x, const int& __max_y);
+chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __ver, const bounds_t& __bn);
 std::pair<int, int> flat_cell(const Point::coord_t& __x, const Point::coord_t& __y, const bounds_t& __bounds, const int& __hor, const int& __ver);
 
 #endif //COLLISIONS_BOUNDS_HH

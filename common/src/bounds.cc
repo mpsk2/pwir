@@ -61,39 +61,12 @@ bounds_t bounds_neighbour(const bounds_t& __bounds, const int& __x, const int& _
     return my_bounds(__bounds, x, y, __max_x, __max_y);
 }
 
-std::vector<bounds_t> area_bounds(const bounds_t& __bounds, const int& __x, const int& __y, const int& __max_x,
-                                  const int& __max_y) {
-    std::vector<bounds_t> result;
-
-    auto i = __max_x >= 3 ? -1 : 0;
-    auto max_i = __max_x >= 2 ? 1 : 0;
-
-    for (; i <= max_i; i++) {
-        auto j = __max_y >= 3 ? -1 : 0;
-        auto max_j = __max_y >= 2 ? 1 : 0;
-
-        for (; j <= max_j; j++) {
-            result.push_back(bounds_neighbour(
-                    __bounds,
-                    __x,
-                    __y,
-                    __max_x,
-                    __max_y,
-                    i,
-                    j
-            ));
-        }
-    }
-
-    return result;
-}
-
 inline bool is_in_bounds(const bounds_t& __bounds, const Point::coord_t& __x, const Point::coord_t& __y) {
     return (
             (std::get<0>(__bounds) <= __x) &&
-            (std::get<1>(__bounds) >= __x) &&
+            (std::get<1>(__bounds) > __x) &&
             (std::get<2>(__bounds) <= __y) &&
-            (std::get<3>(__bounds) >= __y)
+            (std::get<3>(__bounds) > __y)
     );
 }
 
@@ -108,18 +81,14 @@ std::vector<Point> my_chunk(const std::vector<Point>& __data, const bounds_t& __
     return result;
 }
 
-chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __ver) {
+chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __ver, const bounds_t& __space) {
     chunks_t result;
 
     result.resize(__hor * __ver);
 
-    auto space = simulation_space(__data);
-
-    for (int i = 0; i < __hor; i++) {
-        for (int j = 0; j < __ver; j++) {
-            auto mb = my_bounds(space, i, j, __hor, __ver);
-            result[i + j * __hor] = my_chunk(__data, mb);
-        }
+    for(const auto &p : __data) {
+        auto cell = flat_cell(p.x, p.y, __space, __hor, __ver);
+        result[cell.first + cell.second*__hor].push_back(p);
     }
 
     return result;

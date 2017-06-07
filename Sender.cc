@@ -1,10 +1,24 @@
 #include <mpi.h>
 #include <set>
+#include <iterator>
+#include <sstream>
 #include "bounds.hh"
 #include "Sender.hh"
 #include "errors.hh"
 #include "version.hh"
 
+Sender::Sender(const int& __process_number, const int& __processes_count, const int& __gal_1_stars,
+       const int& __gal_2_stars, const bool& __verbose, const int& __hor, const int& __ver, const bounds_t& __bn) noexcept :
+        process_number(__process_number),
+        processes_count(__processes_count),
+        gal_1_stars(__gal_1_stars),
+        gal_2_stars(__gal_2_stars),
+        verbose(__verbose),
+        ver(__ver),
+        hor(__hor),
+        bn(__bn) {
+    this->my_neighbours = this->neighbours();
+}
 
 template <typename T>
 std::vector<T> flatten(const std::vector<std::vector<T>>& v) {
@@ -41,19 +55,18 @@ constexpr static inline int positive_module(const int& a, const int& b) {
 }
 
 std::vector<std::vector<Point> > Sender::distribute_neighbours(const std::vector<Point>& __my_chunk) {
-    auto neighbours = this->neighbours();
     std::vector<std::vector<Point> > result;
 
     result.push_back(__my_chunk);
 
-    for (const auto &neighbour : neighbours) {
+    for (const auto &neighbour : this->my_neighbours) {
         int pn = neighbour.first + neighbour.second * this->hor;
         int _tag = this->base_tag(pn, this->process_number, INITIAL);
 
         this->send_neighbour(__my_chunk, neighbour.first, neighbour.second, _tag);
     }
 
-    for (const auto &neighbour : neighbours) {
+    for (const auto &neighbour : this->my_neighbours) {
         int pn = neighbour.first + neighbour.second * this->hor;
         int _tag = this->base_tag(this->process_number, pn, INITIAL);
 
@@ -97,13 +110,36 @@ std::vector<Point> Sender::receive_neighbour(const int& x, const int& y, const i
 
     return result;
 }
+Sender::neighbours_t Sender::neighbours(const int &__target) {
+    Sender::neighbours_t result;
 
+    const int part_x = __target % this->hor;
+    const int part_y = __target / this->hor;
 
-std::vector<std::pair<int, int> > Sender::neighbours() {
-    std::vector<std::pair<int, int> > result;
+    int i = this->hor >= 3 ? -1 : 0;
+    int max_i = this->hor >= 2 ? 1 : 0;
 
-    const int part_x = process_number % this->hor;
-    const int part_y = process_number / this->hor;
+    for (; i <= max_i; i++) {
+        int j = this->ver >= 3 ? -1 : 0;
+        int max_j = this->ver >= 2 ? 1 : 0;
+
+        for (; j <= max_j; j++) {
+            result.push_back(
+                std::make_pair(
+                    positive_module(part_x + i, this->hor),
+                    positive_module(part_y + j, this->ver)
+                )
+            );
+        }
+    }
+    return result;
+}
+
+Sender::neighbours_t Sender::neighbours() {
+    Sender::neighbours_t result;
+
+    const int part_x = this->process_number % this->hor;
+    const int part_y = this->process_number / this->hor;
 
     int i = this->hor >= 3 ? -1 : 0;
     int max_i = this->hor >= 2 ? 1 : 0;
@@ -136,7 +172,7 @@ std::vector<Point> Sender::sent_initial_neighbours(const std::vector<Point>& inp
 
     if (this->process_number == 0) {
         chunks_t all_chunks;
-        all_chunks = split(input, this->hor, this->ver);
+        all_chunks = split(input, this->hor, this->ver, this->bn);
         sizes.resize(this->processes_count);
         for (int j = 0; j < this->hor; j++) {
             for (int k = 0; k < this->ver; k++) {
@@ -158,7 +194,7 @@ std::vector<Point> Sender::sent_initial_neighbours(const std::vector<Point>& inp
 
     std::vector<int> dist;
     dist.resize(this->processes_count);
-    if (process_number == 0) {
+    if (this->process_number == 0) {
         dist[0] = 0;
         for (int i = 1; i < dist.size(); i++) {
             dist[i] = dist[i - 1] + sizes[i - 1];
@@ -178,18 +214,10 @@ std::vector<Point> Sender::sent_initial_neighbours(const std::vector<Point>& inp
 std::vector<Point> Sender::sent_initial(const std::vector<Point>& input) {
     std::vector<Point> result;
 
-    if (debug) {
-        PRINTF_FL("[process=%2d]: Sending initial data.", this->process_number);
-    }
-
     if (alg == ALL) {
         result = this->sent_initial_all(input);
     } else {
         result = this->sent_initial_neighbours(input);
-    }
-
-    if (debug) {
-        PRINTF_FL("[process=%2d]: Initial data has been sent and received.", this->process_number);
     }
 
     return result;
@@ -234,26 +262,84 @@ std::vector<Point> Sender::redistribute_all(std::vector<Point>& __data) {
 std::vector<Point> Sender::redistribute(std::vector<Point>& __data) {
     std::vector<Point> result;
 
-    if (debug) {
-        PRINTF_FL("[process=%2d]: Redistributing data.", this->process_number);
-    }
-
     if (alg == AlgorithmVersion::ALL) {
         result = this->redistribute_all(__data);
     } else if (alg == AlgorithmVersion::NEIGHBOUR) {
-        PRINTF_FL("DOWN WITH p=%d", this->process_number);
-        handle_error("Not implemented yet.");
+        result = this->redistribute_chunks(__data);
     } else {
         handle_error("Not implemented yet.");
-    }
-
-    if (debug) {
-        PRINTF_FL("[process=%2d]: Data has been redistributed.", this->process_number);
     }
 
     return result;
 }
 
+
+std::vector<int> Sender::gather_sizes(const chunks_t& __data) {
+    std::vector<int> result;
+    result.resize(this->processes_count * this->processes_count);
+    std::vector<int> sending;
+    sending.resize(this->processes_count);
+
+    for (int i = 0; i < this->processes_count; i++) {
+        sending[i] = __data[i].size();
+    }
+
+    MPI::COMM_WORLD.Allgather((void*) &sending.front(), this->processes_count, MPI::INT, (void*) &result.front(), this->processes_count, MPI::INT);
+
+    return result;
+}
+
+std::vector<Point> Sender::redistribute_chunks(const std::vector<Point>& __data) {
+    std::vector<Point> result;
+    auto chunks = split(__data, this->hor, this->ver, this->bn);
+
+    auto sizes = this->gather_sizes(chunks);
+
+    std::vector<std::vector<Point> > sub_res;
+    sub_res.push_back(__data);
+
+    for (int cn = 0; cn < this->processes_count; cn++) {
+        if (chunks[cn].size() == 0) {
+            continue;
+        }
+
+        auto neighs = this->neighbours(cn);
+
+        for (int neigh = 0; neigh < neighs.size(); neigh++) {
+            auto pn = neighs[neigh].first + neighs[neigh].second * this->hor;
+
+            if (pn == this->process_number) {
+                continue;
+            }
+
+            auto tag = this->base_tag(this->process_number, pn, REDISTRIBUTE) * this->processes_count + cn;
+
+            MPI::COMM_WORLD.Send((void*) &chunks[cn].front(), chunks[cn].size(), Point::mpi_type, pn, tag);
+        }
+    }
+
+    for (const auto &n : this->neighbours(this->process_number)) {
+        auto cn = n.first + n.second * this->hor;
+        for (int i = 0; i < this->processes_count; i++) {
+            if (i == this->process_number) {
+                continue;
+            }
+            auto sn = cn + i * this->processes_count;
+            if (sizes[sn] == 0) {
+                continue;
+            }
+            auto tag = this->base_tag(i, this->process_number, REDISTRIBUTE) * this->processes_count + cn;
+
+            std::vector<Point> p;
+            p.resize(sizes[sn]);
+            MPI::COMM_WORLD.Recv((void*) &p.front(), p.size(), Point::mpi_type, i, tag);
+
+            sub_res.push_back(p);
+        }
+    }
+
+    return flatten(sub_res);
+}
 
 int Sender::base_tag(const int& __src, const int& __dest,  const Sender::OP& operation) {
     return __src + __dest * this->processes_count + operation * this->processes_count * processes_count;
@@ -261,7 +347,6 @@ int Sender::base_tag(const int& __src, const int& __dest,  const Sender::OP& ope
 
 std::vector<Point> Sender::gather_all_at_root(std::vector<Point>& __data, const int& __sum) {
     // that method is important for --verbose / -v and for final result.
-    PRINTF_FL("VERBOSE DISTRIBUTE p=%d, ds=%d", this->process_number, __data.size());
 
     std::vector<int> sizes;
     sizes.resize(this->processes_count);
