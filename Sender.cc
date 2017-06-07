@@ -180,7 +180,7 @@ Sender::neighbours_t Sender::neighbours() {
     return result;
 };
 
-std::vector<Point> Sender::sent_initial_neighbours(const std::vector<Point>& input) {
+std::vector<Point> Sender::sent_initial_neighbours(std::vector<Point>& input) {
     // The strategy
     // Send from 0 to all what need to be sent
     // Send from all to their neighbours what is needed to be sent
@@ -229,7 +229,7 @@ std::vector<Point> Sender::sent_initial_neighbours(const std::vector<Point>& inp
     return flatten(x);
 }
 
-std::vector<Point> Sender::sent_initial(const std::vector<Point>& input) {
+std::vector<Point> Sender::sent_initial(std::vector<Point>& input) {
     std::vector<Point> result;
 
     if (alg == AlgorithmVersion::ALL) {
@@ -309,7 +309,7 @@ std::vector<int> Sender::gather_sizes(const chunks_t& __data) {
     return result;
 }
 
-std::vector<Point> Sender::redistribute_chunks(const std::vector<Point>& __data) {
+std::vector<Point> Sender::redistribute_chunks(std::vector<Point>& __data) {
     std::vector<Point> result;
     auto chunks = split(__data, this->hor, this->ver, this->bn);
 

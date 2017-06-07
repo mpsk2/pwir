@@ -17,9 +17,6 @@ void write_file(std::vector<Point>& points, const int& first_len, const int& sec
 
     if (second_len + first_len != points.size()) {
         PRINTF_FL("%d %d %d", points.size(), second_len, first_len);
-        for (const auto &p: points) {
-            PRINTF_FL("GOT %s", p.str().c_str());
-        }
         handle_error("points has too many/few elements");
     }
 

@@ -13,3 +13,4 @@ compile_commands.json
 CTestTestfile.cmake
 res*
 *swp
+gal*.txt

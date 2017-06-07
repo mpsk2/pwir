@@ -24,6 +24,6 @@ with open('gal_{}_{}_{}_1.txt'.format(x, y, start_diff), 'w') as f1:
         f1.write('{}\n{} {}\n{}\n'.format(n, vx1, vy1, mass1))
         f2.write('{}\n{} {}\n{}\n'.format(n, vx2, vy2, mass2))
 
-        for i, j in product(range(start_diff, x + start_diff), range(start_diff, y + start_diff)):
+        for i, j in product(range(start_diff, x + start_diff), range(start_diff+5, y + start_diff+5)):
             f1.write('{} {}\n'.format(i, j))
             f2.write('-{}.5 -{}.5\n'.format(i, j))

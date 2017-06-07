@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 #include <mpi.h>
 #include <vector>
 #include <unistd.h>
@@ -85,6 +86,15 @@ int main(int argc, char** argv) {
 
         auto space = simulation_space(points);
 
+        if (debug) {
+            PRINTF_FL("Simulation space is x=(%f, %f), y=(%f, %f)",
+                      std::get<0>(space),
+                      std::get<1>(space),
+                      std::get<2>(space),
+                      std::get<3>(space)
+            );
+        }
+
         fr1->bound_left = fr2->bound_left = std::get<0>(space);
         fr1->bound_right = fr2->bound_right = std::get<1>(space);
         fr1->bound_down = fr2->bound_down = std::get<2>(space);
@@ -125,7 +135,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    for (int i = 0; i < arguments.total / arguments.delta - 1; i++) {
+    for (int i = 0; i < arguments.total / arguments.delta; i++) {
         if (debug) {
             start = MPI::Wtime();
         }

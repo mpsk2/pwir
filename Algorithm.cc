@@ -128,10 +128,10 @@ Point remap(Point& __p, const bounds_t& __bounds) {
         diff_y = -diff_y;
     }
 
-    while (std::get<1>(__bounds) < __p.x || std::get<0>(__bounds) > __p.x) {
+    while ((std::get<1>(__bounds) < __p.x) || (std::get<0>(__bounds) > __p.x)) {
         __p.x += diff_x;
     }
-    while (std::get<3>(__bounds) < __p.y || std::get<2>(__bounds) > __p.y) {
+    while ((std::get<3>(__bounds) < __p.y) || (std::get<2>(__bounds) > __p.y)) {
         __p.y += diff_y;
     }
     return __p;

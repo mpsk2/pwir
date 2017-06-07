@@ -5,12 +5,19 @@
 bounds_t bounds(const std::vector<Point>& __coords) {
     Point::coord_t minimum_x = __coords[0].x, minimum_y = __coords[0].y, maximum_x = __coords[0].x, maximum_y = __coords[0].y;
     for (const auto &coord : __coords) {
-        minimum_x = std::min(minimum_x, coord.x);
-        minimum_y = std::min(minimum_y, coord.x);
-        maximum_x = std::max(maximum_x, coord.y);
-        maximum_y = std::max(maximum_y, coord.y);
+        if (coord.x < minimum_x) {
+            minimum_x = coord.x;
+        }
+        if (coord.y < minimum_y) {
+            minimum_y = coord.y;
+        }
+        if (coord.x > maximum_x) {
+            maximum_x = coord.x;
+        }
+        if (coord.y > maximum_y) {
+            maximum_y = coord.y;
+        }
     }
-
     return std::make_tuple(minimum_x, maximum_x, minimum_y, maximum_y);
 }
 
@@ -81,28 +88,37 @@ std::vector<Point> my_chunk(const std::vector<Point>& __data, const bounds_t& __
     return result;
 }
 
-chunks_t split(const std::vector<Point>& __data, const int& __hor, const int& __ver, const bounds_t& __space) {
+chunks_t split(std::vector<Point>& __data, const int& __hor, const int& __ver, const bounds_t& __space) {
     chunks_t result;
 
     result.resize(__hor * __ver);
 
-    for(const auto &p : __data) {
+    for(auto &p : __data) {
         auto cell = flat_cell(p.x, p.y, __space, __hor, __ver);
-        result[cell.first + cell.second*__hor].push_back(p);
+        result[cell.first + cell.second * __hor].push_back(p);
     }
-
     return result;
 }
 
-std::pair<int, int> flat_cell(const Point::coord_t& __x, const Point::coord_t& __y, const bounds_t& __bounds, const int& __hor, const int& __ver) {
+std::pair<int, int> flat_cell(Point::coord_t& __x, Point::coord_t& __y, const bounds_t& __bounds, const int& __hor, const int& __ver) {
     const Point::coord_t x = std::get<1>(__bounds) - std::get<0>(__bounds);
     const Point::coord_t y = std::get<3>(__bounds) - std::get<2>(__bounds);
 
     const Point::coord_t nx = __x - std::get<0>(__bounds);
     const Point::coord_t ny = __y - std::get<2>(__bounds);
 
-    const Point::coord_t xc = std::floor(nx * __hor / x);
-    const Point::coord_t yc = std::floor(ny * __ver / y);
+    Point::coord_t xc = std::floor(nx * __hor / x);
+    Point::coord_t yc = std::floor(ny * __ver / y);
+
+    if (xc == __hor) {
+        --xc;
+        __x = std::get<0>(__bounds);
+    }
+
+    if (yc == __ver) {
+        yc = 0;
+        __y = std::get<2>(__bounds);
+    }
 
     return std::make_pair(xc, yc);
 }
