@@ -2,8 +2,6 @@
 #define COLLISIONS_ALGORITHM_HH
 
 #include <vector>
-#include "Point.hh"
-#include "bounds.hh"
 #include <limits>
 
 constexpr Point::coord_t Gc = 155893.597f;

@@ -6,7 +6,6 @@
 #include <mpi.h>
 #include <stddef.h>
 #include <vector>
-#include "PMISerializable.hh"
 
 class Point : MPISerializable<8> {
 public:

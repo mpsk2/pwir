@@ -3,8 +3,6 @@
 
 #include <fstream>
 #include <vector>
-#include "FileHeader.hh"
-#include "Point.hh"
 
 class FileReader : public FileHeader {
 private:

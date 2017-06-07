@@ -3,9 +3,6 @@
 
 #include <string>
 #include <mpi.h>
-#include "PMISerializable.hh"
-#include "Point.hh"
-#include "bounds.hh"
 
 class FileHeader : public MPISerializable<9> {
 public:

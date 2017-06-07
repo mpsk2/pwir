@@ -1,4 +1,6 @@
 #include <cmath>
+#include "PMISerializable.hh"
+#include "Point.hh"
 #include "bounds.hh"
 #include "errors.hh"
 

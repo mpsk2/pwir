@@ -24,7 +24,7 @@ constexpr AlgorithmVersion alg = ALL;
 #ifdef DEBUG
 constexpr bool debug = true;
 #else
-constexpr bool
+constexpr bool debug = false;
 #endif
 
 #endif //COLLISIONS_VERSION_HH

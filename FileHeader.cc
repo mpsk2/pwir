@@ -1,5 +1,8 @@
 #include <stddef.h>
 #include <sstream>
+#include "PMISerializable.hh"
+#include "Point.hh"
+#include "bounds.hh"
 #include "FileHeader.hh"
 
 FileHeader::FileHeader(const int& __number) : FileHeader(0, 0, 0, 0, __number) {}

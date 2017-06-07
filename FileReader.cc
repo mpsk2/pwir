@@ -1,3 +1,7 @@
+#include "PMISerializable.hh"
+#include "Point.hh"
+#include "bounds.hh"
+#include "FileHeader.hh"
 #include "FileReader.hh"
 
 void FileReader::read_header() {

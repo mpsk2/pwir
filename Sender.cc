@@ -2,7 +2,11 @@
 #include <set>
 #include <iterator>
 #include <sstream>
+
+#include "PMISerializable.hh"
+#include "Point.hh"
 #include "bounds.hh"
+
 #include "Sender.hh"
 #include "errors.hh"
 #include "version.hh"

@@ -2,21 +2,24 @@
 #include <unistd.h>
 #include <mpi.h>
 #include <vector>
-#include <unistd.h>
 #include <sstream>
+
+#include "PMISerializable.hh"
+#include "Point.hh"
+#include "bounds.hh"
 #include "FileHeader.hh"
 #include "FileReader.hh"
-#include "Point.hh"
-#include "PMISerializable.hh"
+
+
 #include "cli.hh"
 #include "errors.hh"
 #include "Sender.hh"
-#include "bounds.hh"
 #include "Algorithm.hh"
 #include "Verbose.hh"
 #include "version.hh"
 
 int main(int argc, char** argv) {
+
     auto arguments = Arguments::from_cli(argc, argv);
     double start, start_calc, start_redistribute, start_verbose, finish, total_start, total_end;
 
@@ -161,7 +164,7 @@ int main(int argc, char** argv) {
             start_verbose = MPI::Wtime();
         }
 
-        if (arguments.verbose) {
+        if (arguments.verbose && ((i - 1) < arguments.total / arguments.delta)) {
             if (alg == ALL) {
                 if (process_number == 0) {
                     write_file(data, fr1->stars_number, fr2->stars_number, false);

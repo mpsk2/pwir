@@ -3,8 +3,13 @@
 #include <stdio.h>
 #include <iomanip>
 
-#include "Verbose.hh"
+#include "PMISerializable.hh"
+#include "Point.hh"
+#include "bounds.hh"
+
+// #include "Verbose.hh"
 #include "errors.hh"
+#include "FileHeader.hh"
 
 bool compare(Point p1, Point p2) {
     return p1.id < p2.id;

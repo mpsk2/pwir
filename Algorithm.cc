@@ -2,9 +2,11 @@
 #include <tuple>
 #include <iostream>
 #include <map>
+#include "PMISerializable.hh"
+#include "Point.hh"
+#include "bounds.hh"
 #include "Algorithm.hh"
 #include "errors.hh"
-#include "bounds.hh"
 
 std::pair<Point::coord_t, Point::coord_t> calc_acceleration(const std::vector<Point>& __data, const Point::coord_t& x,
                                                             const Point::coord_t& y, const Point::coord_t& __mass) {
